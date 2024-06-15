@@ -218,3 +218,11 @@ if st.button("Calculate"):
         y = sum(float(weight) for weight in lst.values())
         cGPA = x / y
         st.write(f'<span style="font-size: 20px;">{f"cGPA = <b>{cGPA:.2f}</b>"}</span>', unsafe_allow_html=True)
+
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
