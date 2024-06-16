@@ -1,5 +1,7 @@
 import streamlit as st
 
+
+
 # Data for institution scales and course types
 institution_scale = {
     "Acadia University": 7,
@@ -174,34 +176,54 @@ def gradeconv(x, y, z):
     except (ValueError, UnboundLocalError):
         return "wrong"
 
+
 # Streamlit app
 st.title("OMSAS GPA Calculator")
-
 with st.sidebar:
     st.header("Navigation")
     if st.button("OMSAS GPA Calculator"):
         st.experimental_rerun()
 
 
-form = st.form(key="Form1")
 c1, c2 = st.columns(2)
-coursenameagr = st.toggle("Course name?")
 with c1:
     inst = st.selectbox("What institution do you attend?", sorted(institution_scale.keys()))
 with c2:
     course_cnt = st.number_input("How many courses would you like to calculate for?", min_value=1, step=1)
 
+
+if inst in institution_scale:
+        scale = institution_scale[inst]
+        if isinstance(scale, list):
+            if any(s in scale for s in [9, 8, 7]) and any(s in scale for s in [6, 4, 3]):
+                k = "This university uses both letter and numerical grading."
+            elif any(s in scale for s in [9, 8, 7]):
+                k = "This university uses letter grading."
+            elif any(s in scale for s in [6, 4, 3]):
+                k = "This university uses numerical grading."
+        else:
+            if scale in [9, 8, 7]:
+                k = "This university uses letter grading."
+            elif scale in [6, 4, 3]:
+                k = "This university uses numerical grading."
+else:
+    k = "Select an institution to see grading type information."
+with st.expander("Extra"):
+    coursenameagr = st.checkbox("Course name?", help="This displays a textbox in which you can enter your course name for easier managment of grade inputs")
+    st.write(f"{k}")
+
 courses = []
 for i in range(course_cnt):
+    cont = st.container(border=True)
     if coursenameagr:
-        o = st.text_input(f"Enter your Course Title:", key=f"course_title_{i}")
-        st.write(f'<span style="font-size: 16px;">{f"<b>Course: {o}</b>"}</span>', unsafe_allow_html=True)
-        grade = st.text_input(f"What is your grade for {o}?", key=f"grade_{i}")
-        type = st.selectbox(f"What is your Course Type for {o}?", list(course_types.keys()), key=f"type_{i}")
+        o = cont.text_input(f"nothing", key=f"course_title_{i}", placeholder="Enter your Course title:", label_visibility="collapsed")
+        cont.write(f'<span style="font-size: 16px;">{f"<b>Course: {o}</b>"}</span>', unsafe_allow_html=True)
+        grade = cont.text_input(f"What is your grade for {o}?", key=f"grade_{i}")
+        type = cont.selectbox(f"What is your Course Type for {o}?", list(course_types.keys()), key=f"type_{i}")
     else:
-        st.write(f'<span style="font-size: 16px;">{f"<b>Course {i+1}</b>"}</span>', unsafe_allow_html=True)
-        grade = st.text_input(f"What is your grade for Course {i+1}?", key=f"grade_{i}")
-        type = st.selectbox(f"What is your course type for Course {i+1}?", list(course_types.keys()), key=f"type_{i}")
+        cont.write(f'<span style="font-size: 16px;">{f"<b>Course {i+1}</b>"}</span>', unsafe_allow_html=True)
+        grade = cont.text_input(f"What is your grade for Course {i+1}?", key=f"grade_{i}")
+        type = cont.selectbox(f"What is your course type for Course {i+1}?", list(course_types.keys()), key=f"type_{i}")
     courses.append((grade, type))
 
 if st.button("Calculate"):
@@ -219,10 +241,3 @@ if st.button("Calculate"):
         cGPA = x / y
         st.write(f'<span style="font-size: 20px;">{f"cGPA = <b>{cGPA:.2f}</b>"}</span>', unsafe_allow_html=True)
 
-hide_streamlit_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
